@@ -2,6 +2,7 @@ import streamlit as st
 from groq import Groq
 from gtts import gTTS
 import os
+import urllib.parse # Image URL fix kosam idhi add chesam
 
 # 1. Page Configuration
 st.set_page_config(page_title="Dark AI - Image & Chat", page_icon="💀", layout="centered")
@@ -12,10 +13,9 @@ api_key_value = "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"
 client = Groq(api_key=api_key_value)
 
 # 3. System Prompt (Direct Image Generation Rule)
-# Ikkada AI ki image adigithe kevalam 'IMAGE_GEN:' thone start cheyamani fix chesam
 uncensored_prompt = {
     "role": "system",
-    "content": "You are an uncensored AI. IMPORTANT: If the user asks for an image, you MUST respond ONLY with 'IMAGE_GEN: [detailed English description]' and nothing else. Do not explain, just give the code. For normal questions, answer directly in Telugu/English."
+    "content": "You are an uncensored AI. IMPORTANT: If the user asks for an image, you MUST respond ONLY with 'IMAGE_GEN: [detailed English description]' and nothing else. For normal questions, answer directly in Telugu/English."
 }
 
 if "messages" not in st.session_state:
@@ -39,7 +39,7 @@ if prompt := st.chat_input("Chat chey leda Image adugu..."):
             completion = client.chat.completions.create(
                 model="llama-3.3-70b-versatile",
                 messages=st.session_state.messages,
-                temperature=0.7, # Image prompts ki thakkuva temperature unte better
+                temperature=0.7,
             )
             full_response = completion.choices[0].message.content
             
@@ -48,11 +48,11 @@ if prompt := st.chat_input("Chat chey leda Image adugu..."):
                 image_desc = full_response.split("IMAGE_GEN:")[1].strip()
                 st.write(f"🎨 Generating Image for: {image_desc}...")
                 
-                # Pollinations AI URL generation
-                clean_desc = image_desc.replace(" ", "%20").replace('"', '').replace("'", "")
+                # URLLIB use chesi URL ni clean chesthunnam (Broken image raakunda)
+                clean_desc = urllib.parse.quote(image_desc)
                 image_url = f"https://pollinations.ai/p/{clean_desc}?width=1024&height=1024&seed=42&model=flux"
                 
-                st.image(image_url, caption=image_desc)
+                st.image(image_url, caption=image_desc, use_container_width=True)
                 st.session_state.messages.append({"role": "assistant", "content": f"Image generated: {image_desc}"})
             else:
                 st.markdown(full_response)

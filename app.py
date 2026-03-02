@@ -32,3 +32,35 @@ if prompt := st.chat_input("Chat chey leda Image adugu..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
+
+    # 6. AI Response Logic
+    with st.chat_message("assistant"):
+        try:
+            completion = client.chat.completions.create(
+                model="llama-3.3-70b-versatile",
+                messages=st.session_state.messages,
+                temperature=0.7, # Image prompts ki thakkuva temperature unte better
+            )
+            full_response = completion.choices[0].message.content
+            
+            # Check if AI triggered Image Generation
+            if "IMAGE_GEN:" in full_response:
+                image_desc = full_response.split("IMAGE_GEN:")[1].strip()
+                st.write(f"🎨 Generating Image for: {image_desc}...")
+                
+                # Pollinations AI URL generation
+                clean_desc = image_desc.replace(" ", "%20").replace('"', '').replace("'", "")
+                image_url = f"https://pollinations.ai/p/{clean_desc}?width=1024&height=1024&seed=42&model=flux"
+                
+                st.image(image_url, caption=image_desc)
+                st.session_state.messages.append({"role": "assistant", "content": f"Image generated: {image_desc}"})
+            else:
+                st.markdown(full_response)
+                st.session_state.messages.append({"role": "assistant", "content": full_response})
+                # Voice Output
+                tts = gTTS(text=full_response, lang='te')
+                tts.save("reply.mp3")
+                st.audio("reply.mp3", format="audio/mp3")
+                
+        except Exception as e:
+            st.error(f"Error: {e}")

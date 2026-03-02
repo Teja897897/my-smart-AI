@@ -40,7 +40,7 @@ if prompt := st.chat_input("Adugu (No Restrictions)..."):
         try:
             # Using the High-Performance model
             completion = client.chat.completions.create(
-                model="llama3-70b-8192",
+                model="llama-3.3-70b-versatile",
                 messages=st.session_state.messages,
                 temperature=0.9,
             )
@@ -56,3 +56,4 @@ if prompt := st.chat_input("Adugu (No Restrictions)..."):
             
         except Exception as e:
             st.error(f"Error: {e}")
+

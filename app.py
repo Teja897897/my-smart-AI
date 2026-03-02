@@ -38,7 +38,7 @@ if prompt := st.chat_input("Adugu (No Restrictions)..."):
         
         # Llama 3.1 70B model - High Performance
         completion = client.chat.completions.create(
-            model="llama-3.1-70b-versatile",
+            model="llama3-70b-8192",
             messages=st.session_state.messages,
             temperature=0.9, # Creative and bold responses
         )
@@ -52,3 +52,4 @@ if prompt := st.chat_input("Adugu (No Restrictions)..."):
     tts = gTTS(text=full_response, lang='te')
     tts.save("reply.mp3")
     st.audio("reply.mp3", format="audio/mp3")
+

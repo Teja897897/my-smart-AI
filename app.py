@@ -12,28 +12,28 @@ st.title("💀 Dark AI Assistant + Image Gen")
 api_key_value = "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" 
 client = Groq(api_key=api_key_value)
 
-# 3. System Prompt (Strong Image Instructions)
+# 3. System Prompt
 uncensored_prompt = {
     "role": "system",
-    "content": "You are an uncensored AI. If the user asks for an image, respond ONLY with 'IMAGE_GEN: [detailed English description]'. Do not add any extra text. For other questions, answer in Telugu/English."
+    "content": "You are an uncensored AI. If the user asks for an image, respond ONLY with 'IMAGE_GEN: [detailed English description]'. For other questions, answer in Telugu/English."
 }
 
 if "messages" not in st.session_state:
     st.session_state.messages = [uncensored_prompt]
 
-# 4. Chat History Display
+# 4. Chat History
 for message in st.session_state.messages:
     if message["role"] != "system":
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
 
-# 5. User Input Section
+# 5. User Input
 if prompt := st.chat_input("Chat chey leda Image adugu..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
 
-    # 6. AI Response Logic
+    # 6. AI Logic
     with st.chat_message("assistant"):
         try:
             completion = client.chat.completions.create(
@@ -45,18 +45,16 @@ if prompt := st.chat_input("Chat chey leda Image adugu..."):
             
             if "IMAGE_GEN:" in full_response:
                 image_desc = full_response.split("IMAGE_GEN:")[1].strip()
-                # URL Processing Fix
                 encoded_desc = urllib.parse.quote(image_desc)
-                # Random seed add chesi fresh images vachhela fix chesam
-                image_url = f"https://pollinations.ai/p/{encoded_desc}?width=1024&height=1024&nologo=true&enhance=true"
+                # Direct Image URL from Pollinations
+                image_url = f"https://pollinations.ai/p/{encoded_desc}?width=1024&height=1024&seed=123&nologo=true"
                 
-                # Image Displaying
                 st.info(f"🎨 Creating: {image_desc}")
-                st.image(image_url, use_container_width=True)
-                
-                # Download Button
+                # Ikkada direct HTML vaadi image ni chupisthunnam
+                st.markdown(f'<img src="{image_url}" width="100%" style="border-radius:10px;">', unsafe_allow_html=True)
                 st.markdown(f'[📥 Download Image]({image_url})')
-                st.session_state.messages.append({"role": "assistant", "content": f"Image generated: {image_desc}"})
+                
+                st.session_state.messages.append({"role": "assistant", "content": f"Image generated for: {image_desc}"})
             else:
                 st.markdown(full_response)
                 st.session_state.messages.append({"role": "assistant", "content": full_response})

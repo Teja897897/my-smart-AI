@@ -52,4 +52,3 @@ if prompt := st.chat_input("Adugu (No Restrictions)..."):
     tts = gTTS(text=full_response, lang='te')
     tts.save("reply.mp3")
     st.audio("reply.mp3", format="audio/mp3")
-
